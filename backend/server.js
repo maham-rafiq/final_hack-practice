@@ -1,6 +1,3 @@
-const dns = require('dns');
-dns.setServers(["1.1.1.1", "8.8.8.8"]); // Public DNS Bypass
-
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -13,7 +10,7 @@ const productRoutes = require('./routes/product');
 // 2. Initialize App
 const app = express();
 
-// 3. Middlewares
+// 3. Middlewares Setup
 app.use(cors({
     origin: "*", 
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -22,17 +19,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// 4. Connect Database inside a wrapper middleware correctly
-app.use(async (req, res, next) => {
-    try {
-        await connectDB();
-        next();
-    } catch (err) {
-        return res.status(500).json({ message: "Database connection failed", error: err.message });
-    }
-});
-
-// 5. Mount Routes
+// 4. Mount Routes directly (No extra middleware wrappers)
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes); 
 
@@ -41,12 +28,15 @@ app.get('/', (req, res) => {
     res.send("API is running perfectly with Products CRUD!");
 });
 
-// Start Server (Only for local development)
-const PORT = process.env.PORT || 5000;
+// 5. Connect Database & Start Server ONLY for local development
 if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`🚀 Server is running on port ${PORT}`);
-    });
+    connectDB().then(() => {
+        const PORT = process.env.PORT || 5000;
+        app.listen(PORT, () => console.log(`🚀 Local Server running on port ${PORT}`));
+    }).catch(err => console.log("Database connection failed", err));
+} else {
+    // Live Production: Just trigger DB call silently on export
+    connectDB().catch(err => console.log("Production database connection failed", err));
 }
 
 module.exports = app; // 🚀 Crucial for Vercel Serverless Function Engine
