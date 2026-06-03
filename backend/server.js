@@ -3,14 +3,10 @@ const cors = require('cors');
 require('dotenv').config();
 const connectDB = require('./config/db');
 
-// 1. Routes Import
-const authRoutes = require('./routes/auth');
-const productRoutes = require('./routes/product'); 
-
-// 2. Initialize App
+// Initialize Express App Instance
 const app = express();
 
-// 3. Middlewares Setup
+// 🌍 Global Production CORS Policy Setup
 app.use(cors({
     origin: "*", 
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -19,24 +15,32 @@ app.use(cors({
 
 app.use(express.json());
 
-// 4. Mount Routes directly (No extra middleware wrappers)
+// Routes Imports
+const authRoutes = require('./routes/auth');
+const productRoutes = require('./routes/product'); 
+
+// Direct Route Mounts
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes); 
 
-// Test Route
+// Test Route to check live server status
 app.get('/', (req, res) => {
-    res.send("API is running perfectly with Products CRUD!");
+    res.status(200).send("API is running perfectly with Products CRUD!");
 });
 
-// 5. Connect Database & Start Server ONLY for local development
-if (process.env.NODE_ENV !== 'production') {
-    connectDB().then(() => {
-        const PORT = process.env.PORT || 5000;
-        app.listen(PORT, () => console.log(`🚀 Local Server running on port ${PORT}`));
-    }).catch(err => console.log("Database connection failed", err));
-} else {
-    // Live Production: Just trigger DB call silently on export
-    connectDB().catch(err => console.log("Production database connection failed", err));
+// Database connection logic wrap handling for Serverless Runtime
+connectDB().then(() => {
+    console.log("Database synced successfully in execution pool.");
+}).catch((err) => {
+    console.error("Database structural error during background boot:", err.message);
+});
+
+// Start listening ONLY if running locally
+const PORT = process.env.PORT || 5000;
+if (process.env.NODE_ENV !== 'production' && require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`🚀 Local Server running on port ${PORT}`);
+    });
 }
 
-module.exports = app; // 🚀 Crucial for Vercel Serverless Function Engine
+module.exports = app; // 🚀 Crucial export context mapping for Vercel
