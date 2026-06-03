@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Product = require('../models/Product');
-const { protect, adminOnly } = require('../middleware/authMiddleware');
+const Product = require('../models/product');
+const { protect, adminOnly } = require('../Middleware/authMiddleware');
 const upload = require('../config/cloudinary'); // 🖼️ Upload Middleware Import kiya
 
 // 1. CREATE: Product with Image (🔒 Only Admin can upload file)
