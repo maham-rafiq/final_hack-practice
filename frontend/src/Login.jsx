@@ -14,7 +14,6 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // 🚀 Localhost routing endpoint fixed to live cloud architecture
             const res = await axios.post(`${API_BASE_URL}/api/auth/login`, formData);
             
             // Local storage authorization setup
@@ -75,9 +74,11 @@ const Login = () => {
                         </div>
                     </div>
 
-                    <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold hover:bg-blue-700 transition">
-                        Sign In
-                    </button>
+                    {/* ✅ FIXED: Button text changed from "Sign In" to "Login" as requested */}
+                <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold hover:bg-blue-700 transition">
+                  Login
+                </button>
+
                 </form>
 
                 <div className="relative flex py-4 items-center">
