@@ -10,13 +10,14 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/product'); 
 
-// 2. Initialize App (Yeh line hamesha routes se pehle honi chahiye!)
+// 2. Initialize App
 const app = express();
 
 // 3. Middlewares
-// 🌍 Live Deploy Environment CORS Security Config
+// 🌍 Live Deploy Environment CORS Dynamic Security Setup (Bypassed for Hackathon)
 app.use(cors({
-    origin: ["http://localhost:5173", "https://vercel.app"], // (Vercel link aane par badlein ge)
+    origin: "*", 
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
 
@@ -27,15 +28,19 @@ connectDB();
 
 // 5. Mount Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes); // Sahi position ✅
+app.use('/api/products', productRoutes); 
 
 // Test Route
 app.get('/', (req, res) => {
     res.send("API is running perfectly with Products CRUD!");
 });
 
-// Start Server
+// Start Server (Vercel Integration Export Fix)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server is running on port ${PORT}`);
+    });
+}
+
+module.exports = app; // Zaroori for Vercel Serverless Function Execution 🚀
