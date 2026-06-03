@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from './supabaseClient'; 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://vercel.app';
 
 const Signup = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'user' });
