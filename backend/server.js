@@ -22,13 +22,13 @@ app.use(cors({
 
 app.use(express.json());
 
-// 4. Connect to Cloud Database (Bypass freeze on Serverless execution)
+// 4. Connect Database inside a wrapper middleware correctly
 app.use(async (req, res, next) => {
     try {
         await connectDB();
         next();
     } catch (err) {
-        res.status(500).json({ message: "Database connection failed", error: err.message });
+        return res.status(500).json({ message: "Database connection failed", error: err.message });
     }
 });
 
@@ -41,9 +41,9 @@ app.get('/', (req, res) => {
     res.send("API is running perfectly with Products CRUD!");
 });
 
-// Start Server (Only for local development, skipped on Vercel production)
+// Start Server (Only for local development)
 const PORT = process.env.PORT || 5000;
-if (process.env.NODE_ENV !== 'production' && require.main === module) {
+if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
         console.log(`🚀 Server is running on port ${PORT}`);
     });

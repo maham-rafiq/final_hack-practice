@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
-let isConnected = false;
+let isConnected = null;
 
 const connectDB = async () => {
-    if (isConnected) {
-        return; // Use existing database connection channel
+    // If already connected, use the existing state reference channel
+    if (isConnected && mongoose.connection.readyState === 1) {
+        return; 
     }
 
     try {
