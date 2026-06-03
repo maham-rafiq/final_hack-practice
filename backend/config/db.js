@@ -1,28 +1,20 @@
 const mongoose = require('mongoose');
 
-let cachedConnection = null;
+let isConnected = null;
 
 const connectDB = async () => {
-    // If a connection exists and is ready, reuse it immediately
-    if (mongoose.connection.readyState === 1) {
-        return mongoose.connection;
-    }
-
-    // If an initialization promise is pending, wait for it
-    if (cachedConnection) {
-        return cachedConnection;
+    // If the database connection pool is already active, reuse the reference channel immediately
+    if (isConnected && mongoose.connection.readyState === 1) {
+        return;
     }
 
     try {
-        cachedConnection = mongoose.connect(process.env.MONGO_URI, {
-            serverSelectionTimeoutMS: 5000 // Fast fail if connection takes too long
+        const conn = await mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000 // Fast fail timeout to prevent serverless function freeze
         });
-        
-        await cachedConnection;
-        console.log(`✅ MongoDB Connected Successfully to Cloud Atlas Cluster!`);
-        return mongoose.connection;
+        isConnected = conn.connections.readyState;
+        console.log(`✅ MongoDB Connected Successfully to Cloud Atlas!`);
     } catch (error) {
-        cachedConnection = null; // Clear failure cache tracking
         console.error(`MongoDB Connection Error Exception: ${error.message}`);
         throw error;
     }
