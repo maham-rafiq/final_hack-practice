@@ -7,23 +7,28 @@ const nodemailer = require('nodemailer');
 
 const app = express();
 
+// 🌍 Production Standard Absolute CORS Policy Wrapper (Bypasses all browser block cascades)
 app.use(cors({
     origin: "*", 
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
 }));
 
 app.use(express.json());
 
+// Options request pre-flight routing fallback mapping handler 🎯
+app.options('*', cors());
+
 // Routes Imports
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/product'); 
 
-// Standard Route Mounts
+// Standard Router Mounts
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes); 
 
-// 🎯 FORCE INJECTED FORGOT-PASSWORD ROUTE (Bypasses all 404 Serverless Path Errors)
+// Core Core Server Endpoint for Forgot Password Trigger
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
@@ -50,11 +55,10 @@ app.post('/api/auth/forgot-password', async (req, res) => {
 
         res.status(200).json({ message: "Recovery verification code dispatched to your email inbox successfully!" });
     } catch (err) {
-        res.status(500).json({ message: "Forgot password structural server error", error: err.message });
+        res.status(500).json({ message: "Server parsing error", error: err.message });
     }
 });
 
-// Test Route
 app.get('/', (req, res) => {
     res.status(200).send("API is running perfectly with Products CRUD!");
 });
