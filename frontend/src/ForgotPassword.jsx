@@ -16,7 +16,7 @@ const ForgotPassword = () => {
     const handleRequestOTP = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
+             const res = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
             alert(res.data.message);
             setStep(2); // Advance user validation layout to password update state
         } catch (err) {
