@@ -7,7 +7,7 @@ const nodemailer = require('nodemailer');
 
 const app = express();
 
-// 🌍 Production Standard Absolute CORS Policy Wrapper (Bypasses all browser block cascades)
+// 🌍 Production Standard Absolute CORS Policy Wrapper
 app.use(cors({
     origin: "*", 
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -16,19 +16,16 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-// Options request pre-flight routing fallback mapping handler 🎯
 app.options('*', cors());
 
 // Routes Imports
 const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/product'); 
 
-// Standard Router Mounts
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes); 
 
-// Core Core Server Endpoint for Forgot Password Trigger
+// 🎯 ULTIMATE BACKEND FORGOT-PASSWORD HARD ROUTE (Bypasses Vercel Environment Variables Missing Glitch)
 app.post('/api/auth/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
@@ -40,22 +37,26 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         user.otpExpires = Date.now() + 15 * 60 * 1000; 
         await user.save();
 
+        // 🚨 FALLBACK CONFIGURATION OVERRIDE: If Vercel variables freeze, use these parameters directly
+        const my_email = process.env.EMAIL_USER || 'mahamrafiqmuhammadrafiq@gmail.com';
+        const my_pass = process.env.EMAIL_PASS || 'dhyb xorw xdfi kptc'; // (Apna real 16-digit app password space bina copy paste karein)
+
         const transporter = nodemailer.createTransport({
             service: 'gmail',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+            auth: { user: my_email, pass: my_pass }
         });
 
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: my_email,
             to: email,
             subject: 'SMIT Hackathon Password Recovery Token',
-            text: `Your 6-digit recovery verification code is: ${recoveryCode}`
+            text: `Hi,\n\nYour 6-digit recovery verification code is: ${recoveryCode}\n\nUse this token to reset your password safely.`
         };
         await transporter.sendMail(mailOptions);
 
         res.status(200).json({ message: "Recovery verification code dispatched to your email inbox successfully!" });
     } catch (err) {
-        res.status(500).json({ message: "Server parsing error", error: err.message });
+        res.status(500).json({ message: "Server parsing error during mail trigger", error: err.message });
     }
 });
 
